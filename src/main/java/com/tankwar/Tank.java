@@ -1,39 +1,22 @@
 package com.tankwar;
 
-import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 
-public class Tank {
+class Tank {
     private int x;
 
     private int y;
 
-    private boolean enemy;
+    private final boolean enemy;
 
     private Direction direction;
 
-    public int getX() {
-        return x;
-    }
-
-    public int getY() {
-        return y;
-    }
-
-    public void setX(int x) {
-        this.x = x;
-    }
-
-    public void setY(int y) {
-        this.y = y;
-    }
-
-    public Tank(int x, int y, Direction direction) {
+    Tank(int x, int y, Direction direction) {
         this(x, y, false, direction);
     }
 
-    public Tank(int x, int y, boolean enemy, Direction direction) {
+    Tank(int x, int y, boolean enemy, Direction direction) {
         this.x = x;
         this.y = y;
         this.enemy = enemy;
@@ -99,6 +82,7 @@ public class Tank {
     }
 
     void draw(Graphics g) {
+        int oldX = x, oldY = y;
         this.determineDirection();
         this.move();
 
@@ -107,13 +91,33 @@ public class Tank {
         if(y < 0) y = 0;
         if(y > 600 - getImage().getHeight(null)) y = 600 - getImage().getHeight(null);
 
+        Rectangle rec = this.getRectangle();
+        for (Wall wall : GameClient.getInstance().getWalls()){
+            if(rec.intersects(wall.getRectangle())){
+                x = oldX;
+                y = oldY;
+                break;
+            }
+        }
+
+        for (Tank tank : GameClient.getInstance().getEnemyTanks()) {
+            if (rec.intersects(tank.getRectangle())) {
+                x = oldX;
+                y = oldY;
+                break;
+            }
+        }
 
         g.drawImage(this.getImage(), this.x, this.y, null);
     }
 
+    private Rectangle getRectangle() {
+        return new Rectangle(x, y, getImage().getWidth(null), getImage().getHeight(null));
+    }
+
     public boolean up, down, left, right;
 
-    public void keyPressed(KeyEvent e) {
+    void keyPressed(KeyEvent e) {
         switch (e.getKeyCode()) {
             case KeyEvent.VK_UP:
                 up = true;
@@ -149,7 +153,7 @@ public class Tank {
         }
     }
 
-    public void keyRelease(KeyEvent e) {
+    void keyRelease(KeyEvent e) {
         switch (e.getKeyCode()) {
             case KeyEvent.VK_UP:
                 up = false;

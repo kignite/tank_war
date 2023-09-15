@@ -2,24 +2,32 @@ package com.tankwar;
 
 import java.awt.*;
 
-public class Wall {
+class Wall {
 
-    private int x;
-    private int y;
+    private final int x;
+    private final int y;
 
-    private boolean horizontal;
+    private final boolean horizontal;
 
-    private int howManyBrick;
+    private final int howManyBrick;
 
-    public Wall(int x, int y, boolean horizontal, int howManyBrick) {
+    private final Image brickImage;
+
+     Wall(int x, int y, boolean horizontal, int howManyBrick) {
+        this.brickImage = Tools.getImage("brick.png");
         this.x = x;
         this.y = y;
         this.horizontal = horizontal;
         this.howManyBrick = howManyBrick;
     }
 
-    public void draw(Graphics g) {
-        Image brickImage = Tools.getImage("brick.png");
+     Rectangle getRectangle() {
+        return horizontal ? new Rectangle(x, y,
+                howManyBrick * brickImage.getWidth(null), brickImage.getHeight(null))
+                : new Rectangle(x, y, brickImage.getWidth(null), howManyBrick * brickImage.getHeight(null));
+    }
+
+     void draw(Graphics g) {
 
         if (horizontal) {
             for (int i = 0; i < howManyBrick; i++) {
@@ -31,7 +39,4 @@ public class Wall {
             }
         }
     }
-
-
-//    assets/images/brick.png
 }
