@@ -86,14 +86,14 @@ class Tank {
         this.determineDirection();
         this.move();
 
-        if(x < 0) x = 0;
+        if (x < 0) x = 0;
         if (x > 800 - getImage().getWidth(null)) x = 800 - getImage().getWidth(null);
-        if(y < 0) y = 0;
-        if(y > 600 - getImage().getHeight(null)) y = 600 - getImage().getHeight(null);
+        if (y < 0) y = 0;
+        if (y > 600 - getImage().getHeight(null)) y = 600 - getImage().getHeight(null);
 
         Rectangle rec = this.getRectangle();
-        for (Wall wall : GameClient.getInstance().getWalls()){
-            if(rec.intersects(wall.getRectangle())){
+        for (Wall wall : GameClient.getInstance().getWalls()) {
+            if (rec.intersects(wall.getRectangle())) {
                 x = oldX;
                 y = oldY;
                 break;
@@ -131,7 +131,16 @@ class Tank {
             case KeyEvent.VK_RIGHT:
                 right = true;
                 break;
+            case KeyEvent.VK_CONTROL:
+                fire();
+                break;
         }
+    }
+
+    private void fire() {
+        Missile missile = new Missile(x + getImage().getWidth(null) / 2 - 6,
+                y + getImage().getHeight(null) / 2 - 6, enemy, direction);
+        GameClient.getInstance().getMissiles().add(missile);
     }
 
     private boolean stopped;
