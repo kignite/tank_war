@@ -18,14 +18,18 @@ public class GameClient extends JComponent {
 
     private final Tank playerTank;
 
-    private final List<Tank> enemyTanks;
+    private List<Tank> enemyTanks;
 
     private final List<Wall> walls;
 
     private final List<Missile> missiles;
 
-    List<Missile> getMissiles() {
-        return missiles;
+    synchronized void add(Missile missile) {
+        missiles.add(missile);
+    }
+
+    Tank getPlayerTank() {
+        return playerTank;
     }
 
     List<Tank> getEnemyTanks() {
@@ -38,7 +42,6 @@ public class GameClient extends JComponent {
 
     private GameClient() {
         this.playerTank = new Tank(400, 100, Direction.DOWN);
-        this.enemyTanks = new ArrayList<>(12);
         this.missiles = new ArrayList<>();
         this.walls = Arrays.asList(
                 new Wall(200, 140, true, 15),
@@ -47,26 +50,39 @@ public class GameClient extends JComponent {
                 new Wall(700, 80, false, 15)
         );
 
+        this.initEnemyTank();
+        this.setPreferredSize(new Dimension(800, 600));
+    }
+
+    private void initEnemyTank() {
+        final List<Tank> enemyTanks;
+        this.enemyTanks = new ArrayList<>(12);
         for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 4; j++) {
                 this.enemyTanks.add(new Tank(200 + j * 120, 400 + 40 * i, true, Direction.UP));
             }
         }
-
-        this.setPreferredSize(new Dimension(800, 600));
     }
 
     @Override
     protected void paintComponent(Graphics g) {
         g.setColor(Color.black);
         g.fillRect(0, 0, 800, 600);
-        this.playerTank.draw(g);
+        playerTank.draw(g);
+
+        enemyTanks.removeIf(t -> !t.isLive());
+        if (enemyTanks.isEmpty()) {
+            this.initEnemyTank();
+        }
+
         for (Tank tank : enemyTanks) {
             tank.draw(g);
         }
         for (Wall wall : walls) {
             wall.draw(g);
         }
+
+        missiles.removeIf(m -> !m.isLive());
         for (Missile missile : missiles) {
             missile.draw(g);
         }
